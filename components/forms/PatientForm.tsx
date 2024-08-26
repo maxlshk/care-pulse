@@ -3,9 +3,12 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { Button } from '@/components/ui/button';
 import { Form } from '@/components/ui/form';
 import CustomFormField from '../CustomFormField';
+import SubmitButton from '../SubmitButton';
+import { useState } from 'react';
+import { UserFormValidation } from '@/lib/validation/UserFormValidation';
+import { useRouter } from 'next/navigation';
 
 export enum FormFieldType {
     INPUT = 'input',
@@ -19,24 +22,35 @@ export enum FormFieldType {
     SKELETON = 'skeleton',
 }
 
-const formSchema = z.object({
-    username: z.string().min(2, {
-        message: 'Username must be at least 2 characters.',
-    }),
-});
-
 const PatientForm = () => {
-    const form = useForm<z.infer<typeof formSchema>>({
-        resolver: zodResolver(formSchema),
+    const [isLoading, setIsLoading] = useState(false);
+    const router = useRouter();
+
+    const form = useForm<z.infer<typeof UserFormValidation>>({
+        resolver: zodResolver(UserFormValidation),
         defaultValues: {
-            username: '',
+            name: '',
+            email: '',
+            phone: '',
         },
     });
 
-    function onSubmit(values: z.infer<typeof formSchema>) {
-        // Do something with the form values.
-        // ✅ This will be type-safe and validated.
-        console.log(values);
+    async function onSubmit(values: z.infer<typeof UserFormValidation>) {
+        setIsLoading(true);
+        try {
+            const userData = {
+                name: values.name,
+                email: values.email,
+                phone: values.phone,
+            };
+
+            // const user = await createUser(userData);
+            // if (user) {
+            //     router.push(`/patients/${user.id}/register`);
+            // }
+        } catch (err) {
+            console.error(err);
+        }
     }
     return (
         <Form {...form}>
@@ -79,7 +93,7 @@ const PatientForm = () => {
                     iconAlt="user"
                 />
 
-                <Button type="submit">Submit</Button>
+                <SubmitButton isLoading={isLoading}>Get Started</SubmitButton>
             </form>
         </Form>
     );
