@@ -7,7 +7,6 @@ import {
     FormItem,
     FormLabel,
     FormControl,
-    FormDescription,
     FormMessage,
 } from './ui/form';
 import { Control } from 'react-hook-form';
@@ -16,7 +15,8 @@ import 'react-phone-number-input/style.css';
 import PhoneInput from 'react-phone-number-input';
 import E164Number from 'react-phone-number-input';
 import Image from 'next/image';
-
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 interface CustomFormFieldProps {
     control: Control<any>;
     fieldType: FormFieldType;
@@ -40,7 +40,16 @@ const RenderField = ({
     field: any;
     props: CustomFormFieldProps;
 }) => {
-    const { fieldType, iconAlt, iconSrc, placeholder, disabled } = props;
+    const {
+        fieldType,
+        iconAlt,
+        iconSrc,
+        placeholder,
+        disabled,
+        showTimeSelect,
+        dateFormat,
+        renderSkeleton,
+    } = props;
     switch (fieldType) {
         case FormFieldType.INPUT:
             return (
@@ -80,6 +89,30 @@ const RenderField = ({
                     />
                 </FormControl>
             );
+        case FormFieldType.DATE_PICKER:
+            return (
+                <div className="flex rounded-md border border-dark-500 bg-dark-400">
+                    <Image
+                        src={'/assets/icons/calendar.svg'}
+                        width={24}
+                        height={24}
+                        alt="calendar"
+                        className="ml-2"
+                    />
+                    <FormControl>
+                        <DatePicker
+                            selected={field.value}
+                            onChange={(date) => field.onChange(date)}
+                            dateFormat={dateFormat ?? 'MM/dd/yyyy'}
+                            showTimeSelect={showTimeSelect ?? false}
+                            timeInputLabel="Time:"
+                            wrapperClassName="date-picker"
+                        />
+                    </FormControl>
+                </div>
+            );
+        case FormFieldType.SKELETON:
+            return renderSkeleton ? renderSkeleton(field) : null;
         default:
             return null;
     }
